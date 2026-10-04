@@ -434,7 +434,7 @@ packages:
     source: hosted
     version: "1.1.1"
   flutter:
-    dependency: "direct main"
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -477,7 +477,7 @@ packages:
     source: hosted
     version: "6.0.0"
   flutter_localizations:
-    dependency: "direct main"
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -644,10 +644,10 @@ packages:
     dependency: transitive
     description:
       name: image_picker_ios
-      sha256: "852a7762962f3bb3ad54ef1d342669e41557f466033a676baa8876b367cf4050"
+      sha256: "815921d05ef87d64dc64e9f7f855967614a9a67086d0c60fa27d47a1cd9a8896"
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.13+8"
+    version: "0.8.13+9"
   image_picker_linux:
     dependency: transitive
     description:
@@ -700,18 +700,18 @@ packages:
     dependency: transitive
     description:
       name: jni
-      sha256: f038e58b4dc2c9037f50e233175086337e0b305e356d28211bf55f21c504cbd3
+      sha256: "6b9ca0602fef0230e83149afbe3f9f8227e94f2bbe84a1da4f14d699742f402d"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.3"
+    version: "1.1.0"
   jni_flutter:
     dependency: transitive
     description:
       name: jni_flutter
-      sha256: b2310cdd4c18c65c081ab141a41efa94aa26c65431803703ece51996f174f351
+      sha256: c399ad579bfba12eb20c924f7a23160a42902f3023a871e1cad40a8a679656a4
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.4"
   jni_util:
     dependency: transitive
     description:
@@ -893,10 +893,10 @@ packages:
     dependency: transitive
     description:
       name: objective_c
-      sha256: ad56fd53a78ff6b1472fa59ff2a4e8b8ccabafc586fc263a1dfad0b99b5553e3
+      sha256: "5c80c2ad6e2c0397de5db38c6d653e69616a3397e13aa7633bf39eb668f2041b"
       url: "https://pub.dev"
     source: hosted
-    version: "9.6.0"
+    version: "9.6.2"
   octo_image:
     dependency: transitive
     description:
@@ -1130,7 +1130,7 @@ packages:
     source: hosted
     version: "7.2.0"
   shared_preferences:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: shared_preferences
       sha256: c3025c5534b01739267eb7d76959bbc25a6d10f6988e1c2a3036940133dd10bf
@@ -1415,7 +1415,7 @@ packages:
     source: hosted
     version: "1.0.4+1"
   tuple:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: tuple
       sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
@@ -1543,7 +1543,7 @@ packages:
     source: hosted
     version: "2.4.3"
   vm_service:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: vm_service
       sha256: "5f37239c4851efcef929cea7824e76df7f2f0970aef85d66bbc430afa40e72f0"

@@ -9,20 +9,18 @@ name: Flutter Drive (integration)
 # 说明：
 #   - example/test_driver 依赖 flutter_driver + test（已在 example dev_dependencies 声明）
 #   - KVM 加速需要 udev 规则（见下）
-#   - 仅在 example / lib / kit 源码变更时运行，避免文档改动也跑重型模拟器
+#   - 仅在 example / packages 源码变更时运行，避免文档改动也跑重型模拟器
 on:
   push:
     branches: [master]
     paths:
       - "example/**"
-      - "lib/**"
       - "packages/**"
       - ".github/workflows/flutter_drive.yml"
   pull_request:
     branches: [master]
     paths:
       - "example/**"
-      - "lib/**"
       - "packages/**"
       - ".github/workflows/flutter_drive.yml"
   workflow_dispatch:

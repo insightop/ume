@@ -1,0 +1,65 @@
+name: ume
+description: Community Version of UME is an in-app debug kits platform for Flutter apps.
+version: 2.0.8
+homepage: https://github.com/insightop/ume
+topics: [debug, in-app-debug, diagnostics, plugin, ume]
+screenshots:
+  - description: "ume logo with transparent background"
+    path: ume_logo_256.png
+
+environment:
+  # `workspace` 使用 glob（packages/*）需要语言版本 3.11+
+  sdk: ">=3.11.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  shared_preferences: ^2.0.15
+
+  vm_service: ^15.0.0
+
+  tuple: ^2.0.0
+
+  ume_core: ^2.0.2
+  ume_kit_channel_monitor: ^2.0.0
+  ume_kit_channel_observer: ^2.0.0
+  ume_kit_clean_local_data: ^2.0.0
+  ume_kit_console: ^2.0.0
+  ume_kit_database: ^2.0.0
+  ume_kit_designer_check: ^2.0.0
+  ume_kit_device: ^2.0.0
+  ume_kit_dio: ^2.0.1
+  ume_kit_get_connect: ^2.0.0
+  ume_kit_memory_detector: ^2.0.1
+  ume_kit_traffic: ^2.0.0
+  ume_kit_perf: ^2.0.1
+  ume_kit_shared_preferences: ^2.0.0
+  ume_kit_show_code: ^2.0.2
+  ume_kit_slow_animation: ^2.0.0
+  ume_kit_ui: ^2.0.0
+  # 注意：
+  #  - ume_kit_bloc_inspector 尚未发布到 pub.dev，为保持 ume 可发布，
+  #    暂不列入 ume 的依赖与 facade 导出（见 lib/ume.dart）。
+  #    待其发布后再加回此处并在 facade 中重新导出。
+  #  - ume_kit_storage 同样未纳入（历史原因保留注释）。
+
+dev_dependencies:
+  flutter_lints: any
+  flutter_test:
+    sdk: flutter
+  melos: ^8.6.0
+  mockito: ^5.3.2
+  flutter_coverage_badge:
+    git:
+      url: https://github.com/smileShirely/flutter_coverage_badge.git
+      ref: 59b7580f406bb712e9d9049c8c99212946e34f65
+
+flutter:
+  uses-material-design: true
+

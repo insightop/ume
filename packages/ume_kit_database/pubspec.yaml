@@ -1,5 +1,4 @@
 name: ume_kit_database
-resolution: workspace
 description: Database kit for SQLite, hive and SP.
 version: 2.0.1
 homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_database
@@ -7,6 +6,8 @@ homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_database
 environment:
   sdk: ">=3.9.0 <4.0.0"
   flutter: ">=3.0.0"
+
+resolution: workspace
 
 dependencies:
   data_table_2: ^3.0.0

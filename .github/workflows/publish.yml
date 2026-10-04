@@ -10,15 +10,12 @@ name: Publish to pub.dev
 #   https://dart.dev/tools/pub/automated-publishing
 #
 # tag 约定（需与 pub.dev 后台 "Automated publishing" 里为每个包配置的 tag pattern 一致）：
-#   根包 ume          -> v{{version}}                    例如 v2.0.7
-#   kit 包            -> <包名>-v{{version}}             例如 ume_kit_console-v2.0.4
-#   ume_core          -> ume_core-v{{version}}           例如 ume_core-v2.0.3
+#   <包名>-v{{version}}    例如 ume-v2.0.9 / ume_core-v2.0.3 / ume_kit_console-v2.0.4
+#   对应的包目录统一为 packages/<包名>（含 ume 本体，它也是 packages/ 下的成员）
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"                    # 根包 ume
-      - "ume_core-v[0-9]+.[0-9]+.[0-9]+"
-      - "ume_kit_*-v[0-9]+.[0-9]+.[0-9]+"
+      - "[a-z0-9_]+-v[0-9]+.[0-9]+.[0-9]+"
   workflow_dispatch:
     inputs:
       package_dir:
@@ -49,19 +46,13 @@ jobs:
           else
             TAG="${GITHUB_REF#refs/tags/}"
 
-            if [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-              # 根包 ume
-              DIR="."
-              VERSION="${BASH_REMATCH[1]}"
-            elif [[ "$TAG" =~ ^(ume_kit_[a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            # 统一约定：<包名>-v<版本> -> packages/<包名>
+            if [[ "$TAG" =~ ^([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
               PKG="${BASH_REMATCH[1]}"
               VERSION="${BASH_REMATCH[2]}"
               DIR="packages/${PKG}"
-            elif [[ "$TAG" =~ ^(ume_core)-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-              DIR="packages/ume_core"
-              VERSION="${BASH_REMATCH[2]}"
             else
-              echo "::error::无法从 tag '$TAG' 解析出包目录"
+              echo "::error::无法从 tag '$TAG' 解析出包目录（期望 <包名>-v<版本>）"
               exit 1
             fi
           fi

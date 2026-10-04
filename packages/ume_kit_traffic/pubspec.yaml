@@ -1,5 +1,4 @@
 name: ume_kit_traffic
-resolution: workspace
 description: Monitor plugin for UME.
 version: 2.0.0
 homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_traffic
@@ -7,6 +6,8 @@ homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_traffic
 environment:
   sdk: ">=3.9.0 <4.0.0"
   flutter: ">=3.0.0"
+
+resolution: workspace
 
 dependencies:
   flutter:

@@ -1,5 +1,4 @@
 name: ume_kit_bloc_inspector
-resolution: workspace
 description: A UME kit for flutter_bloc.
 version: 0.0.1
 homepage: https://github.com/insightop/ume
@@ -7,6 +6,8 @@ homepage: https://github.com/insightop/ume
 environment:
   sdk: ">=3.9.0 <4.0.0"
   flutter: ">=1.17.0"
+
+resolution: workspace
 
 dependencies:
   flutter:

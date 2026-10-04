@@ -1,5 +1,4 @@
 name: ume_kit_perf
-resolution: workspace
 description: Performance kits for ume.
 version: 2.0.2
 homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_perf
@@ -7,6 +6,8 @@ homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_perf
 environment:
   sdk: ">=3.9.0 <4.0.0"
   flutter: ">=3.0.0"
+
+resolution: workspace
 
 dependencies:
   flutter:

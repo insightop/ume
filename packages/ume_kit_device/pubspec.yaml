@@ -1,5 +1,4 @@
 name: ume_kit_device
-resolution: workspace
 description: Device info kit for ume.
 version: 2.0.5
 homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_device
@@ -7,6 +6,8 @@ homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_device
 environment:
   sdk: ">=3.9.0 <4.0.0"
   flutter: ">=3.0.0"
+
+resolution: workspace
 
 dependencies:
   flutter:

@@ -1,5 +1,4 @@
 name: ume_kit_shared_preferences
-resolution: workspace
 description: Shared preferences kit for UME.
 version: 2.0.3
 homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_shared_preferences
@@ -7,6 +6,8 @@ homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_shared_p
 environment:
   sdk: ">=3.9.0 <4.0.0"
   flutter: ">=3.0.0"
+
+resolution: workspace
 
 dependencies:
   flutter:

@@ -1,5 +1,4 @@
 name: ume_kit_get_connect
-resolution: workspace
 description: get_connect kit for ume.
 version: 2.0.3
 homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_get_connect
@@ -7,6 +6,8 @@ homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_get_conn
 environment:
   sdk: ">=3.9.0 <4.0.0"
   flutter: ">=3.0.0"
+
+resolution: workspace
 
 dependencies:
   flutter:

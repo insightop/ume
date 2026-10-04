@@ -10,7 +10,6 @@ on:
   push:
     branches: [master]
     paths:
-      - "lib/**"
       - "packages/*/lib/**"
       - "packages/*/test/**"
   workflow_dispatch:
@@ -37,8 +36,9 @@ jobs:
       - name: Resolve workspace
         run: flutter pub get
 
-      # 根包 ume（排除内置 logo 绘制文件）
+      # ume 本体（排除内置 logo 绘制文件）
       - name: Badge for ume
+        working-directory: packages/ume
         run: dart run flutter_coverage_badge --exclude lib/util/flutter_logo.dart
 
       - name: Badge for ume_kit_device
@@ -70,7 +70,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add coverage_badge.svg \
+          git add packages/ume/coverage_badge.svg \
                   packages/ume_kit_device/coverage_badge.svg \
                   packages/ume_kit_perf/coverage_badge.svg \
                   packages/ume_kit_show_code/coverage_badge.svg \

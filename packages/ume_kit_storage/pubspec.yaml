@@ -1,5 +1,4 @@
 name: ume_kit_storage
-resolution: workspace
 description: Storage Kit for UME Kit
 version: 1.0.1
 homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_storage
@@ -7,6 +6,8 @@ homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_storage
 environment:
   sdk: ">=3.9.0 <4.0.0"
   flutter: ">=3.0.0"
+
+resolution: workspace
 
 dependencies:
   flutter:

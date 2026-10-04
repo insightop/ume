@@ -1,79 +1,44 @@
-name: ume
-description: Community Version of UME is an in-app debug kits platform for Flutter apps.
-version: 2.0.8
-homepage: https://github.com/insightop/ume
-topics: [debug, in-app-debug, diagnostics, plugin, ume]
-screenshots:
-  - description: "ume logo with transparent background"
-    path: ume_logo_256.png
+# 虚拟 workspace 根包 —— 不对应 pub.dev 上的任何包。
+#
+# 遵循 Dart 官方 pub workspace 范式（dart.dev/tools/pub/workspaces，以及
+# flutter-permission-handler / riverpod / drift / source_gen 等真实项目）：
+#   根包 publish_to: none，真正发布的包都是它的成员。
+#
+# 这样做的原因：
+#   1) 根 pubspec 的 workspace 字段不会被发布出去，故不会因为成员目录被
+#      .pubignore 排除而在下游解析时报 "No workspace packages matching"；
+#   2) example/ 可正常作为 workspace 成员（与官方插件一致）；
+#   3) 发布逻辑统一为「每个包各自发布」，无特例。
+name: ume_workspace
+publish_to: none
 
 environment:
-  # `workspace` 使用 glob（packages/*）需要语言版本 3.11+
   sdk: ">=3.11.0 <4.0.0"
-  flutter: ">=3.0.0"
 
 workspace:
   - example
-  # 所有 kit + ume_core（glob 自动纳入新增包）
+  # 所有可发布包（ume 本体 + ume_core + 各 kit）
   - packages/*
-  # 各 kit 自带的演示 app（Flutter 官方约定，放在包的 example/ 下）
+  # 各 kit 自带的演示 app
   - packages/*/example
-
-dependencies:
-  flutter:
-    sdk: flutter
-  flutter_localizations:
-    sdk: flutter
-
-  shared_preferences: ^2.0.15
-
-  vm_service: ^15.0.0
-
-  tuple: ^2.0.0
-
-  ume_core: ^2.0.2
-  ume_kit_channel_monitor: ^2.0.0
-  ume_kit_channel_observer: ^2.0.0
-  ume_kit_clean_local_data: ^2.0.0
-  ume_kit_console: ^2.0.0
-  ume_kit_database: ^2.0.0
-  ume_kit_designer_check: ^2.0.0
-  ume_kit_device: ^2.0.0
-  ume_kit_dio: ^2.0.1
-  ume_kit_get_connect: ^2.0.0
-  ume_kit_memory_detector: ^2.0.1
-  ume_kit_traffic: ^2.0.0
-  ume_kit_perf: ^2.0.1
-  ume_kit_shared_preferences: ^2.0.0
-  ume_kit_show_code: ^2.0.2
-  ume_kit_slow_animation: ^2.0.0
-  ume_kit_ui: ^2.0.0
-  # 注意：
-  #  - ume_kit_bloc_inspector 尚未发布到 pub.dev，为保持 ume 可发布，
-  #    暂不列入 ume 的依赖与 facade 导出（见 lib/ume.dart）。
-  #    待其发布后再加回此处并在 facade 中重新导出。
-  #  - ume_kit_storage 同样未纳入（历史原因保留注释）。
 
 dev_dependencies:
   flutter_lints: any
   flutter_test:
     sdk: flutter
-  melos: ^8.6.0
+  melos: ^8.9.0
   mockito: ^5.3.2
   flutter_coverage_badge:
     git:
       url: https://github.com/smileShirely/flutter_coverage_badge.git
       ref: 59b7580f406bb712e9d9049c8c99212946e34f65
 
-flutter:
-  uses-material-design: true
-
 melos:
-  useRootAsPackage: true
+  useRootAsPackage: false
   command:
     bootstrap:
       runPubGetInParallel: true
-    # 与 CI 保持一致：0 error 即通过，warning/info 不阻塞（存量 lint 逐步清理）
+    # 与 CI 保持一致：0 error 即通过，warning/info 不阻塞
     analyze:
       fatalInfos: false
       fatalWarnings: false
@@ -89,4 +54,3 @@ melos:
         command: dart analyze --no-fatal-warnings .
       packageFilters:
         dirExists: lib
-
