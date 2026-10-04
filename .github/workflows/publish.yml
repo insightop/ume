@@ -44,12 +44,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 发布前守卫：确保待发布的包不会把 workspace: 带进归档。
-      # 2.0.8 正是带着该键发布的，导致下游 pub 解析失败。
-      # 该脚本零依赖（仅 dart:io），在 workspace 已损坏时仍可运行。
-      - name: Check workspace layout
-        run: dart tool/check_workspace_layout.dart
-
       - name: Resolve package directory and version
         id: resolve
         shell: bash
@@ -113,6 +107,13 @@ jobs:
         with:
           channel: stable
           cache: true
+
+      # 发布前守卫：确保待发布的包不会把 workspace: 带进归档。
+      # 2.0.8 正是带着该键发布的，导致下游 pub 解析失败。
+      # 放在这里而不是 resolve job：GitHub 的 ubuntu runner 镜像不含 Dart，
+      # resolve 也没有 setup-dart；本 job 已装好 Flutter/Dart，才跑得动。
+      - name: Check workspace layout
+        run: dart tool/check_workspace_layout.dart
 
       - name: Resolve dependencies
         working-directory: ${{ needs.resolve.outputs.package_dir }}
