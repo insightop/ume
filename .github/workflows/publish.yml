@@ -34,6 +34,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 发布前守卫：确保待发布的包不会把 workspace: 带进归档。
+      # 2.0.8 正是带着该键发布的，导致下游 pub 解析失败。
+      # 该脚本零依赖（仅 dart:io），在 workspace 已损坏时仍可运行。
+      - name: Check workspace layout
+        run: dart tool/check_workspace_layout.dart
+
       - name: Resolve package directory and version
         id: resolve
         shell: bash
@@ -108,3 +114,19 @@ jobs:
       - name: Publish to pub.dev
         working-directory: ${{ needs.resolve.outputs.package_dir }}
         run: dart pub publish --force
+
+      # 发布后验证：从 pub.dev 拉回【刚发布的归档】，确认它不含 workspace:
+      # 且在该归档内 `dart pub deps` 可用。
+      #
+      # 为什么发布成功了还要查：`dart pub publish` 校验的是工作区，打包用的是
+      # `.pubignore` 过滤后的列表，二者可能不一致 —— 2.0.8 正是这样逃过全部
+      # 检查发布的。发布无法撤回，所以一旦这里失败，唯一补救是立刻补发新版本；
+      # 因此【故意让它失败】而不是 continue-on-error，避免坏归档被静默放过。
+      - name: Verify published archive
+        if: needs.resolve.outputs.version != ''
+        env:
+          PACKAGE_DIR: ${{ needs.resolve.outputs.package_dir }}
+          VERSION: ${{ needs.resolve.outputs.version }}
+        run: |
+          set -euo pipefail
+          tool/verify_published_archive.sh "${PACKAGE_DIR##*/}" "$VERSION"

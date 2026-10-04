@@ -29,6 +29,12 @@ jobs:
           channel: ${{ env.FLUTTER_CHANNEL }}
           cache: true
 
+      # workspace 布局守卫：必须早于 `pub get` 运行。
+      # 悬空 workspace 条目会让 pub 自身解析失败，届时再检查已无意义。
+      # 该脚本刻意零依赖（仅 dart:io），在 workspace 已损坏时仍可运行。
+      - name: Check workspace layout
+        run: dart tool/check_workspace_layout.dart
+
       # workspace 根解析一次，覆盖所有成员包
       - name: Resolve workspace
         run: flutter pub get

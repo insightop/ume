@@ -1,14 +1,19 @@
 # 虚拟 workspace 根包 —— 不对应 pub.dev 上的任何包。
 #
 # 遵循 Dart 官方 pub workspace 范式（dart.dev/tools/pub/workspaces，以及
-# flutter-permission-handler / riverpod / drift / source_gen 等真实项目）：
+# riverpod / drift / source_gen 等真实项目）：
 #   根包 publish_to: none，真正发布的包都是它的成员。
 #
-# 这样做的原因：
-#   1) 根 pubspec 的 workspace 字段不会被发布出去，故不会因为成员目录被
-#      .pubignore 排除而在下游解析时报 "No workspace packages matching"；
-#   2) example/ 可正常作为 workspace 成员（与官方插件一致）；
-#   3) 发布逻辑统一为「每个包各自发布」，无特例。
+# 为什么根必须 publish_to: none（这是硬约束，不是风格偏好）：
+#   `dart pub publish` 不会改写 pubspec，`workspace:` 会原样进入归档。而 pub
+#   读取「依赖的 pubspec」与读取本地 pubspec 走同一套校验：一旦某个 workspace
+#   条目在归档里不存在，下游执行 `dart pub deps`（或从子目录 `dart run`）就会
+#   报 "No workspace packages matching ..." 并直接失败。
+#   ume 2.0.8 正是这样发布的（当时根包 name: ume 可发布且带 workspace:），
+#   修复只能靠补发新版本 —— 已发布的归档无法撤回。
+#
+#   因此规则是：**只有这个虚拟根可以声明 workspace:，且它永不发布。**
+#   该约束由 tool/check_workspace_layout.dart 在 CI 中强制。
 name: ume_workspace
 publish_to: none
 
@@ -19,7 +24,7 @@ workspace:
   - example
   # 所有可发布包（ume 本体 + ume_core + 各 kit）
   - packages/*
-  # 各 kit 自带的演示 app
+  # 各 kit 自带的演示 app（glob：新增 kit 的 example/ 自动纳入）
   - packages/*/example
 
 dev_dependencies:
@@ -36,8 +41,6 @@ dev_dependencies:
 melos:
   useRootAsPackage: false
   command:
-    bootstrap:
-      runPubGetInParallel: true
     # 与 CI 保持一致：0 error 即通过，warning/info 不阻塞
     analyze:
       fatalInfos: false

@@ -1,0 +1,32 @@
+# .pubignore —— 控制 `dart pub publish` 打包内容
+#
+# ⚠️ 位置至关重要：本文件必须留在【仓库根】。
+#
+# pub 从「被发布的包目录」向上查找 .pubignore，直到 workspace 根为止。
+# 因此只有位于仓库根，它才是所有可发布包（packages/ume + packages/*）的共同祖先。
+# 一旦把它挪进 packages/ume/，它对 packages/* 下的各 kit 就完全失效 ——
+# packages/ume/ 并不是那些 kit 的祖先目录。（这正是本文件曾被误移后，
+# 各 kit 开始把 coverage/ 打进归档的原因。）
+#
+# ⚠️ 本文件会【取代】同一目录的 .gitignore，而不是与之叠加。
+# 所以 .gitignore 里那些对发布有意义的规则，必须在这里重新声明一遍
+# （见下方 *.iml）。这也是为什么不能简单地把它删掉了事。
+#
+# ⚠️ 绝不能在这里排除「包的祖先目录」（如 packages/、packages/ume/ 自身）。
+# 那会让 pub 找不到包内的文件，发布会报缺少 README/CHANGELOG 而失败。
+#
+# ── 关于 example/（有意不排除）──────────────────────────────────────
+# 各 kit 自带的 example/ 会**随包一起发布**，以便在 pub.dev 提供 Example 页。
+# 这与 Flutter 官方插件、riverpod、drift 的做法一致。
+# 代价是归档体积变大（例如 ume_kit_shared_preferences 从 7 KB 增至 133 KB）。
+# 若将来要改回精简归档，需为每个含 example/ 的包单独添加包级 .pubignore，
+# 不能只在本文件加一条 example/ —— 那会连带影响 packages/ume。
+# ────────────────────────────────────────────────────────────────────
+#
+# 规则均为「无前导斜杠」形式，按 gitignore 语义匹配任意层级的同名目录。
+build/
+coverage/
+screenshots/
+.github/
+openspec/
+*.iml
