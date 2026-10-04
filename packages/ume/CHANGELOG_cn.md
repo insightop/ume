@@ -2,6 +2,17 @@
 
 [English](./CHANGELOG.md)
 
+## [2.0.9]
+
+- **修复**：2.0.8 的归档 pubspec 里带有 `workspace:` 字段，但它指向的 `example/`
+  目录并未打进归档。下游解析到它时会报 ``No workspace packages matching `example` ``——
+  `dart pub deps` 直接失败，从子目录执行 `dart run` / `build_runner` 也会失败。
+  已发布的归档无法修改，故由此版本承载修复。
+- 可发布的 `ume` 包已移至 `packages/ume/`；仓库根仅为不发布的 workspace 包
+  （`publish_to: none`），只承载 `melos:` 配置。`workspace:` 字段不再被发布。
+- 各 kit 的 example 现在随归档一起发布，与 Flutter 官方插件保持一致。
+- 移除 `ume` 的第三方覆盖率徽章步骤：它只是纯 export facade，本身没有测试。
+
 ## [2.0.8]
 
 - **修复**：将第三方的 `ume_kit_monitor` 依赖替换为自有的 `ume_kit_traffic`

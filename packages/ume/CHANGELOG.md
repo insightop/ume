@@ -2,6 +2,21 @@
 
 [简体中文](./CHANGELOG_cn.md)
 
+## [2.0.9]
+
+- **Fix**: the 2.0.8 archive shipped a `workspace:` field in its pubspec while
+  omitting the `example/` directory that field pointed at. Consumers resolving
+  it hit ``No workspace packages matching `example` `` — `dart pub deps` failed
+  outright, and `dart run` / `build_runner` failed when invoked from a
+  subdirectory. A published archive cannot be amended, so this release carries
+  the fix.
+- The publishable `ume` package now lives under `packages/ume/`; the repository
+  root is a private workspace package (`publish_to: none`) that only holds the
+  `melos:` configuration. The `workspace:` field is no longer published at all.
+- Kit examples now ship inside their archives, matching Flutter's own plugins.
+- Dropped the third-party coverage badge step for `ume`: it is a plain export
+  facade with no tests of its own.
+
 ## [2.0.8]
 
 - **Fix**: replace the third-party `ume_kit_monitor` dependency with our own
