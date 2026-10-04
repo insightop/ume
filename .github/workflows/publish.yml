@@ -10,12 +10,22 @@ name: Publish to pub.dev
 #   https://dart.dev/tools/pub/automated-publishing
 #
 # tag 约定（需与 pub.dev 后台 "Automated publishing" 里为每个包配置的 tag pattern 一致）：
-#   <包名>-v{{version}}    例如 ume-v2.0.9 / ume_core-v2.0.3 / ume_kit_console-v2.0.4
-#   对应的包目录统一为 packages/<包名>（含 ume 本体，它也是 packages/ 下的成员）
+#   ume 本体   -> v{{version}}              例如 v2.0.9
+#   ume_core   -> ume_core-v{{version}}     例如 ume_core-v2.0.3
+#   kit 包     -> <包名>-v{{version}}       例如 ume_kit_console-v2.0.4
+#   包目录：ume 本体已迁至 packages/ume；其余为 packages/<包名>
+#
+# ⚠️ 模式里**不要使用方括号字符类**。GitHub 的 ref glob 不支持 `[a-z0-9_]`
+#    这类写法（下划线尤其会触发 "invalid tags patterns"），一旦非法，
+#    **整个 workflow 无法解析**：任何 push 都会生成一个 0 job 的失败 run，
+#    连 master 分支推送也会（本该被 tags: 过滤器静默跳过）。
+#    下面三个模式沿用仓库历史，均不含方括号。
 on:
   push:
     tags:
-      - "[a-z0-9_]+-v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"                  # ume 本体
+      - "ume_core-v[0-9]+.[0-9]+.[0-9]+"
+      - "ume_kit_*-v[0-9]+.[0-9]+.[0-9]+"
   workflow_dispatch:
     inputs:
       package_dir:
@@ -52,13 +62,17 @@ jobs:
           else
             TAG="${GITHUB_REF#refs/tags/}"
 
-            # 统一约定：<包名>-v<版本> -> packages/<包名>
-            if [[ "$TAG" =~ ^([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            # ume 本体用裸版本 tag（历史约定，如 v2.0.9）
+            if [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+              DIR="packages/ume"
+              VERSION="${BASH_REMATCH[1]}"
+            # 其余包：<包名>-v<版本> -> packages/<包名>
+            elif [[ "$TAG" =~ ^([a-z0-9_]+)-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
               PKG="${BASH_REMATCH[1]}"
               VERSION="${BASH_REMATCH[2]}"
               DIR="packages/${PKG}"
             else
-              echo "::error::无法从 tag '$TAG' 解析出包目录（期望 <包名>-v<版本>）"
+              echo "::error::无法从 tag '$TAG' 解析出包目录（期望 v<版本> 或 <包名>-v<版本>）"
               exit 1
             fi
           fi

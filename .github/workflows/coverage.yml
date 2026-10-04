@@ -36,11 +36,11 @@ jobs:
       - name: Resolve workspace
         run: flutter pub get
 
-      # ume 本体（排除内置 logo 绘制文件）
-      - name: Badge for ume
-        working-directory: packages/ume
-        run: dart run flutter_coverage_badge --exclude lib/util/flutter_logo.dart
-
+      # 注：ume 本体不再生成徽章。它现在只是 packages/ume/lib/ume.dart 一份
+      # 20 行的 export façade，没有 test/ 目录，也没有 coverage/lcov.info；
+      # 此前的「Badge for ume」步骤读的是仓库根那份 2021 年的陈旧数据
+      # （描述的还是后来拆到 ume_core 的代码），重构后直接报
+      # PathNotFoundException 而失败。
       - name: Badge for ume_kit_device
         working-directory: packages/ume_kit_device
         run: dart run flutter_coverage_badge
@@ -70,8 +70,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add packages/ume/coverage_badge.svg \
-                  packages/ume_kit_device/coverage_badge.svg \
+          git add packages/ume_kit_device/coverage_badge.svg \
                   packages/ume_kit_perf/coverage_badge.svg \
                   packages/ume_kit_show_code/coverage_badge.svg \
                   packages/ume_kit_ui/coverage_badge.svg \
