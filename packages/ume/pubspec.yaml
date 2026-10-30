@@ -34,6 +34,7 @@ dependencies:
   ume_kit_database: ^2.0.0
   ume_kit_designer_check: ^2.0.0
   ume_kit_device: ^2.0.0
+  ume_kit_git: ^1.0.0
   ume_kit_dio: ^2.0.1
   ume_kit_get_connect: ^2.0.0
   ume_kit_memory_detector: ^2.0.1

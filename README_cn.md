@@ -377,3 +377,84 @@ showDialog(
 欢迎[加入字节跳动 Flutter 交流群](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=67au2f75-3783-41b0-8868-0fc0178f1fd8)
 
 或随时[联系开发者](mailto:sunkai.dev@bytedance.com)
+
+
+## 当前源码补充说明
+
+社区维护的 Flutter 应用内调试工具集。仓库采用 Dart pub workspace，
+对外入口是 `packages/ume`，仓库根是不可发布的工作区包。
+
+## 文档入口
+
+| 内容 | 中文 | English |
+| --- | --- | --- |
+| App 接入、插件、Release/Profile | [UME 使用说明](./packages/ume/README_cn.md) | [UME](./packages/ume/README.md) |
+| Git 面板、构建命令、Android Studio / VS Code | [Git 接入指南](./packages/ume_kit_git/README_cn.md) | [Git guide](./packages/ume_kit_git/README.md) |
+| Facade 更新记录 | [更新日志](./packages/ume/CHANGELOG_cn.md) | [Changelog](./packages/ume/CHANGELOG.md) |
+| 开发贡献 | [贡献指南](./packages/ume/CONTRIBUTING_cn.md) | [Contributing](./packages/ume/CONTRIBUTING.md) |
+
+## Git 构建信息
+
+注册 `const GitInfo()`，然后在 **App 项目根目录**运行：
+
+```sh
+dart run ume:flutter run
+dart run ume:flutter build apk --release
+```
+
+IDE 断点调试继续使用原生 Flutter 启动配置：启动前执行 `dart run ume:git_info`，
+Flutter 追加 `--dart-define-from-file=.dart_tool/ume_git_info.json`。
+两种入口共用 `ume_kit_git` 内的采集逻辑。
+
+面板展示当前构建详情和默认折叠的最近最多 5 条提交。采集失败继续启动或构建，
+不显示 Git 详情。图标为内置图片数据，业务方无需声明 asset。Git 仅在构建前运行。
+完整配置和失败处理见 [Git 指南](./packages/ume_kit_git/README_cn.md)。
+
+这些 Git 功能描述当前源码；请使用配套源码依赖或已包含功能的发布版本。
+本地版本号未变化不代表同版本 pub.dev 归档已包含新增功能。
+
+## 仓库结构
+
+| 路径 | 职责 |
+| --- | --- |
+| `pubspec.yaml` | 私有 workspace 与 melos 配置 |
+| `packages/ume/` | 统一导出和命令转发入口 |
+| `packages/ume_core/` | 插件接口、面板和共享基础设施 |
+| `packages/ume_kit_*/` | 可独立接入的功能插件 |
+| `packages/ume_kit_git/` | Git 面板、采集器、构建封装、IDE 生成命令及测试 |
+| `example/` | 工作区演示 App |
+| `tool/` | 布局检查及发布归档检查 |
+
+依赖方向是 kit → ume_core、facade → 已收录的 kits；Git 与 DeviceInfo 相互独立。
+只有仓库根声明 `workspace:`，且必须保持 `publish_to: none`。
+当前 facade / workspace 源码要求 Dart >=3.11.0 <4.0.0，实际依赖约束以 pubspec 为准。
+
+## 开发与验证
+
+在仓库根目录执行：
+
+```sh
+dart tool/check_workspace_layout.dart
+flutter pub get
+dart analyze --no-fatal-warnings .
+dart run melos run test
+```
+
+只验证 Git 功能：
+
+```sh
+dart analyze packages/ume_kit_git packages/ume/bin
+flutter test packages/ume_kit_git/test
+dart run ume:flutter test packages/ume_kit_git/test/git_info_test.dart
+```
+
+CI 包含 Git kit 测试及注入真实构建信息的交互测试。
+Git 子进程集成测试在 Windows 跳过，终止信号转发覆盖 macOS/Linux；
+图片解码与面板测试不需要手机设备。
+
+发布流程和归档约束见 [AGENTS.md](./AGENTS.md)。新增 kit 需要先发布，
+再发布依赖它的 facade；工作区本地解析成功不代表 pub.dev 已存在相应包。
+
+## 协议
+
+[MIT](./LICENSE)。功能截图和上游贡献者信息保留在包使用说明中。

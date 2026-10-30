@@ -377,3 +377,124 @@ showDialog(
 欢迎[加入字节跳动 Flutter 交流群](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=67au2f75-3783-41b0-8868-0fc0178f1fd8)
 
 或随时[联系开发者](mailto:sunkai.dev@bytedance.com)
+
+
+## App 构建 Git 信息
+
+UME 可以在启动、测试或构建时自动记录 **App 仓库** 的当前 HEAD。
+只需在原来的 Flutter 命令前加 `dart run ume:`，其余参数照常传递：
+
+```sh
+dart run ume:flutter run --flavor dev -t lib/main_dev.dart
+dart run ume:flutter build apk --release --flavor dev -t lib/main_dev.dart
+dart run ume:flutter build ipa --release --flavor dev -t lib/main_dev.dart
+```
+
+`ume` 需要在当前 App 的依赖中（可使用 `dev_dependencies`）。
+在 App 项目目录运行，并确保 Git、Flutter 在 PATH 中可用。
+无需业务采集脚本、生成代码、声明 asset 或手动配置 dart-define。
+命令内部生成临时参数文件，Flutter 退出后自动删除；会保留原有参数、终端交互和退出码。
+`run`、`build`、`test` 会注入信息，其他命令及帮助请求原样交给 Flutter。
+采集失败只输出提示，继续启动或构建；面板不展示 Git 详情，避免误用旧版本信息。
+
+注册独立的 Git 面板（由 `ume_kit_git` 提供，与设备信息插件无依赖）：
+
+```dart
+import 'package:ume/ume.dart';
+
+PluginManager.instance.register(const GitInfo());
+```
+
+展示完整 commit ID、分支、提交说明、作者、提交时间（committer time，含时区）
+及工作区是否有未提交修改，点击即可复制。记录的是构建时的本地 HEAD，
+不会访问远端仓库；未提交修改只标记状态，不保存差异。
+安装后的 Android/iOS 内测 release 包无需 Git 或网络也可查看。
+若仍用原生 `flutter` 命令启动且没有注入信息，面板不展示 Git 详情。
+
+### VS Code / Cursor 调试
+
+为了保留 IDE 断点调试，让 IDE 正常启动 Flutter，并在启动前调用 UME：
+
+`.vscode/tasks.json` 中添加：
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [{
+    "label": "UME Git Info",
+    "type": "process",
+    "command": "dart",
+    "args": ["run", "ume:git_info"],
+    "options": {"cwd": "${workspaceFolder}"},
+    "problemMatcher": []
+  }]
+}
+```
+
+在现有 Dart launch 配置中添加 `"preLaunchTask": "UME Git Info"`，
+并在 `toolArgs` 中添加 `"--dart-define-from-file=.dart_tool/ume_git_info.json"`。
+`ume:git_info` 默认更新此文件，支持额外传入输出路径；采集失败会写入空 JSON 并返回成功，Flutter 可继续读取该文件启动；
+无法写入参数文件等 I/O 错误仍会报告失败，避免读取旧内容。
+
+
+最近提交列表默认收集当前构建 commit 及其之前的最近 5 条记录（历史不足 5 条时按实际数量）。
+Git Info 顶部保留当前构建详情，下方“最近提交”默认折叠，展开后可查看短 commit ID、
+提交说明、提交人和时间，点击记录可复制含完整 ID 的信息。
+沿用现有采集命令，无需修改业务启动配置；记录来自本地 Git 历史，不代表相邻测试包的完整差异。
+
+
+## 当前源码接入补充
+
+本节仅补充当前源码的使用方式，前面的原始说明、示例、兼容性表和上游信息均保持不变。
+实际接口和 SDK 要求以当前检出的源码及 pubspec 为准，历史示例不作为当前接口承诺。
+
+### 当前插件注册示例
+
+当前设备信息面板使用 `DeviceInfo`。Git 功能独立于 `ume_kit_git`，由 facade 统一导出。
+在 `UMEWidget` 包裹 App 之前按需注册：
+
+```dart
+import 'package:ume/ume.dart';
+
+PluginManager.instance
+  ..register(DeviceInfo())
+  ..register(const GitInfo());
+```
+
+当前 facade 源码要求 Dart >=3.11.0 <4.0.0。Git 接口和命令需要配套源码依赖或
+已包含这些功能的发布版本，本地版本号未变化不代表同版本 pub.dev 归档已包含新增功能。
+
+### Git 命令行与 IDE 流程
+
+| 场景 | 操作 |
+| --- | --- |
+| 终端、内测打包脚本 | 将 `flutter` 替换为 `dart run ume:flutter`，其余参数保留 |
+| IDE 断点调试 | Before launch 执行 `dart run ume:git_info`，Flutter 追加 `--dart-define-from-file=.dart_tool/ume_git_info.json` |
+
+两种入口均调用 `ume_kit_git` 内的采集逻辑，工作目录为 App 仓库。
+包裹命令使用临时 JSON，Flutter 退出后清理；IDE 任务每次覆盖更新
+`.dart_tool/ume_git_info.json`。采集失败继续执行；IDE 写入 `{}` 并返回成功，
+不展示 Git 详情。参数文件写入错误和 Flutter 自身错误仍会报告失败。
+
+面板顶部保留当前构建详情，下面默认折叠最近最多 5 条提交，字段和提交详情均可复制。
+信息在编译时写入；热重载、热重启不会刷新构建参数，需要完整停止后重新 Run / Debug。
+安装后的 App 不需要 Git、网络或电脑上的原始 JSON 文件。
+
+Git 图标采用内置字节和 `MemoryImage`，即使 UME 位于 dev_dependencies 中也不需要业务声明 asset。
+内测 release 入口需注册 Git 插件并包裹 UME，只有 debug 分支注册时不会出现在 release 中。
+
+完整步骤见 [Git 接入指南](../ume_kit_git/README_cn.md)，包括独立依赖、Android Studio 的
+**Before launch → Run Another Configuration**、VS Code/Cursor、自定义路径、CI 浅克隆和排错。
+[仓库补充说明](../../README_cn.md#当前源码补充说明)介绍 workspace 结构和验证命令。
+Git 插件已加入现有 CI 矩阵，并单独验证注入构建参数后的面板交互。
+
+### 插件开发补充
+
+依赖方向保持 kit → ume_core、facade → 已导出的 kits。
+`ume/lib/ume.dart` 保持纯 export，构建时使用的 `dart:io` 实现放在独立 CLI library。
+插件实现 `Pluggable`，提供唯一 `name`、显示名称 `displayName`、`iconImageProvider`、
+`buildWidget(context)` 和 `onTrigger()`。多数内置插件使用共享图片字节与 `MemoryImage`；
+菜单按插件名称缓存图标。嵌入 App 子树的插件可实现 `PluggableWithNestedWidget`，
+提供 `buildNestedWidget(child)`。
+
+当前 workspace 开发与发布方式作为补充记录在 [贡献指南](./CONTRIBUTING_cn.md#当前工作区流程补充)。

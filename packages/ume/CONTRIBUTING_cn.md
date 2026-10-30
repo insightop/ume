@@ -77,3 +77,18 @@
 
 [https://flutter.dev/dash](https://flutter.dev/dash)
 ```
+
+
+## 当前工作区流程补充
+
+以下内容补充本仓库当前 pub workspace 的开发方式，保留前面的原始贡献说明：
+
+1. 基于当前 `master` 创建聚焦本次修改的分支。
+2. 在所属 kit/core 中实现，facade library 保持纯 export。
+3. 同步测试和中英文文档，未发布修改单独记录。
+4. 在仓库根执行 `flutter pub get`、`dart tool/check_workspace_layout.dart` 及相关分析和测试。
+5. Git 功能运行 `flutter test packages/ume_kit_git/test` 和 `dart run ume:flutter test packages/ume_kit_git/test/git_info_test.dart`。
+6. 新增有测试的 kit 时更新 CI 矩阵；新增 kit 先发布，再发布依赖它的 facade。
+7. 创建 PR，说明最终行为与验证结果。
+
+具体见 [仓库补充说明](../../README_cn.md#当前源码补充说明) 和 [发布约束](../../AGENTS.md)。

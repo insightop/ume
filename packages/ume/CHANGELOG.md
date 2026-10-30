@@ -2,6 +2,13 @@
 
 [简体中文](./CHANGELOG_cn.md)
 
+## Unreleased
+
+- Export the independent `ume_kit_git` panel and add `ume:flutter` / `ume:git_info` CLI entry points.
+- Embed current build metadata and a collapsed list of the latest five local commits.
+- Continue on Git capture failure; document native IDE pre-launch integration and embedded icons.
+- Refresh repository/package guides, SDK notes and Git CI coverage.
+
 ## [2.0.9]
 
 - **Fix**: the 2.0.8 archive shipped a `workspace:` field in its pubspec while

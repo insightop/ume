@@ -378,3 +378,108 @@ You can [submit an issue](./CONTRIBUTING_en.md#how-to-raise-an-issue) in any of 
 Welcome to [Join the ByteDance Flutter Exchange Group](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=67au2f75-3783-41b0-8868-0fc0178f1fd8).
 
 Or contact [author](mailto:sunkai.dev@bytedance.com).
+
+
+## Host app Git revision
+
+Replace `flutter` with `dart run ume:flutter` when running, testing or building
+from your app checkout:
+
+```sh
+dart run ume:flutter run --flavor dev -t lib/main_dev.dart
+dart run ume:flutter build apk --release --flavor dev -t lib/main_dev.dart
+```
+
+Keep `ume` in the app dependencies (dev dependencies work). Git and Flutter must
+be on PATH. UME captures the app's local HEAD, branch, commit message, author,
+committer timestamp and dirty state, then injects temporary compiler definitions.
+No app-specific collection script or assets are needed. Temporary files are
+removed when Flutter exits; arguments, terminal streams and exit status are
+preserved. `run`, `build` and `test` receive metadata; other commands and help
+requests pass through. Git capture failure logs a warning and continues without revision metadata.
+No network or Git is needed on the installed device, including release builds.
+
+Register `PluginManager.instance.register(const GitInfo());` for the
+copyable panel supplied by the independent `ume_kit_git` package. Without injection the panel omits Git details. Dirty state records a flag, not the uncommitted diff.
+
+For IDE breakpoint debugging, run `dart run ume:git_info` as a pre-launch task
+and add `--dart-define-from-file=.dart_tool/ume_git_info.json` to the launch
+configuration's `toolArgs`. The generator refreshes the file before each launch
+and replaces stale data with empty JSON and returns success if capture fails. See README_cn.md for a full VS Code task
+example. The generator also accepts a custom output path.
+
+
+Git Info also embeds the latest five commits ending at the build revision (or fewer
+when history is limited). The current build details remain at the top, followed
+by a collapsed history list with short hash, subject, author and timestamp. Tap a
+record to copy its full hash and details. Existing CLI and IDE commands work
+without changes; this local history is not a diff against the previous build.
+
+
+## Current source integration notes
+
+This section adds guidance for the current checkout. Earlier documentation,
+examples, compatibility tables and upstream information above remain unchanged.
+Current APIs and SDK constraints should be checked against this checkout's code
+and pubspec, rather than inferred from the historical examples.
+
+### Current plugin registration example
+
+`DeviceInfo` is the current device panel. Git metadata is implemented separately
+in `ume_kit_git` and re-exported by the facade. Register the panels needed by your
+app before wrapping it with `UMEWidget`:
+
+```dart
+import 'package:ume/ume.dart';
+
+PluginManager.instance
+  ..register(DeviceInfo())
+  ..register(const GitInfo());
+```
+
+The facade's current source SDK constraint is Dart >=3.11.0 <4.0.0. The Git APIs
+and commands require a matching source dependency or a package release that
+contains them. An unchanged local version number does not establish feature
+availability in the same pub.dev archive.
+
+### Git CLI and native IDE workflows
+
+| Scenario | Steps |
+| --- | --- |
+| Terminal / internal build script | Replace `flutter` with `dart run ume:flutter`, retaining the remaining arguments |
+| IDE breakpoint debugging | Before launch, run `dart run ume:git_info`; append `--dart-define-from-file=.dart_tool/ume_git_info.json` to Flutter arguments |
+
+Both call the collector inside `ume_kit_git` from the app checkout. The wrapper
+uses a temporary file deleted after Flutter exits. The IDE task overwrites the
+persistent `.dart_tool/ume_git_info.json` before each launch. A capture failure
+continues without Git details; the IDE generator writes `{}` and returns success.
+File-write errors and Flutter errors still report failure.
+
+Current build details appear first, followed by a collapsed list of up to five
+recent commits. Tap fields or records to copy. Metadata is compiled into the app;
+hot reload/restart do not refresh compiler definitions. Stop and run again to
+capture a newer revision. The installed app needs no Git, network or original JSON.
+
+The Git icon is embedded and uses `MemoryImage`, so no app asset declaration is
+required even when UME is a dev dependency. Include the Git plugin in the desired
+internal release entry point; debug-only registration does not appear in release.
+
+See the [complete Git guide](../ume_kit_git/README.md) for standalone dependencies,
+Android Studio **Before launch → Run Another Configuration**, VS Code/Cursor,
+custom output paths, shallow CI history, failure behavior and troubleshooting.
+The [repository overview](../../README.md#current-source-additions) documents the
+workspace structure and validation commands. Git tests now run in the CI package
+matrix, with a separate run using injected build metadata.
+
+### Plugin development notes
+
+Kits depend on `ume_core`; the facade depends on the kits it exports. Keep
+`ume/lib/ume.dart` export-only and build-time `dart:io` tooling in a separate CLI
+library. A plugin implements `Pluggable`, providing a unique `name`, visible
+`displayName`, `iconImageProvider`, `buildWidget(context)` and `onTrigger()`.
+Most built-in kits use shared embedded image bytes and `MemoryImage`; the menu
+caches icons by plugin name. `PluggableWithNestedWidget` additionally supplies
+`buildNestedWidget(child)` for tools wrapping the app subtree.
+
+Current workspace development and release notes supplement the historical
+contribution instructions in [Contributing](./CONTRIBUTING.md#current-workspace-workflow).

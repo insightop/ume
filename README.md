@@ -378,3 +378,88 @@ You can [submit an issue](./CONTRIBUTING_en.md#how-to-raise-an-issue) in any of 
 Welcome to [Join the ByteDance Flutter Exchange Group](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=67au2f75-3783-41b0-8868-0fc0178f1fd8).
 
 Or contact [author](mailto:sunkai.dev@bytedance.com).
+
+
+## Current source additions
+
+Community-maintained Flutter in-app debugging tools. The repository uses a Dart
+pub workspace; the public facade is `packages/ume`, not the private workspace root.
+
+## Documentation
+
+| Topic | English | 简体中文 |
+| --- | --- | --- |
+| App integration, plugins, release/profile | [UME](./packages/ume/README.md) | [UME](./packages/ume/README_cn.md) |
+| Git panel, build CLI, Android Studio and VS Code | [Git guide](./packages/ume_kit_git/README.md) | [Git 指南](./packages/ume_kit_git/README_cn.md) |
+| Facade changelog | [Changelog](./packages/ume/CHANGELOG.md) | [更新日志](./packages/ume/CHANGELOG_cn.md) |
+| Contributing | [Guide](./packages/ume/CONTRIBUTING.md) | [贡献指南](./packages/ume/CONTRIBUTING_cn.md) |
+
+## Git build information
+
+Register `const GitInfo()` and run from your **app project**:
+
+```sh
+dart run ume:flutter run
+dart run ume:flutter build apk --release
+```
+
+For IDE breakpoints, keep native Flutter launch and run `dart run ume:git_info`
+as a before-launch task, passing `--dart-define-from-file=.dart_tool/ume_git_info.json`
+to Flutter. Both entry points share the same collector in `ume_kit_git`.
+
+The panel displays the current build revision and a collapsed list of up to five
+recent commits. Capture failure continues without Git details. Icons are embedded,
+so the Git kit needs no app asset declaration. Git commands are build-time only.
+The [Git guide](./packages/ume_kit_git/README.md) includes complete setup and failure behavior.
+
+These Git additions describe this checkout; use matching source dependencies or
+a release that contains them. An unchanged local version number does not mean
+the same pub.dev archive contains the additions.
+
+## Repository structure
+
+| Path | Purpose |
+| --- | --- |
+| `pubspec.yaml` | Private workspace and melos configuration |
+| `packages/ume/` | Public exports and CLI forwarding entry points |
+| `packages/ume_core/` | Shared plugin interfaces, panel and infrastructure |
+| `packages/ume_kit_*/` | Independently packaged feature kits |
+| `packages/ume_kit_git/` | Git panel, collector, wrapper, IDE generator and tests |
+| `example/` | Workspace demo application |
+| `tool/` | Layout and published-archive checks |
+
+Kits depend on `ume_core`; the facade depends on the kits it exports. Git is
+independent of DeviceInfo. Only the workspace root declares `workspace:` and it
+must remain `publish_to: none`. Current facade/workspace sources require Dart
+>=3.11.0 <4.0.0; dependency constraints remain authoritative.
+
+## Develop and validate
+
+From this repository root:
+
+```sh
+dart tool/check_workspace_layout.dart
+flutter pub get
+dart analyze --no-fatal-warnings .
+dart run melos run test
+```
+
+For Git-specific work:
+
+```sh
+dart analyze packages/ume_kit_git packages/ume/bin
+flutter test packages/ume_kit_git/test
+dart run ume:flutter test packages/ume_kit_git/test/git_info_test.dart
+```
+
+CI tests include the Git kit and an injected-metadata interaction run. Git
+subprocess integration tests skip Windows; signal forwarding is tested on
+macOS/Linux. Embedded-icon and panel tests do not require a mobile device.
+
+Release instructions and archive invariants live in [AGENTS.md](./AGENTS.md).
+Publish a newly added kit before publishing a facade release that depends on it;
+local workspace resolution alone does not establish availability on pub.dev.
+
+## License
+
+[MIT](./LICENSE). See the package guides for feature screenshots and upstream credits.

@@ -62,6 +62,7 @@ jobs:
           - packages/ume_kit_database
           - packages/ume_kit_dio
           - packages/ume_kit_get_connect
+          - packages/ume_kit_git
           - packages/ume_kit_memory_detector
           - packages/ume_kit_perf
           - packages/ume_kit_shared_preferences
@@ -92,6 +93,11 @@ jobs:
             exit 0
           fi
           flutter test --enable-vmservice
+
+      - name: Git panel with injected build metadata
+        if: matrix.package == 'packages/ume_kit_git'
+        working-directory: packages/ume_kit_git
+        run: dart run ume_kit_git:flutter test test/git_info_test.dart
 
   # ------------------------------------------------------------ example 构建
   build-example:

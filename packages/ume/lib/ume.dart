@@ -8,6 +8,7 @@ export 'package:ume_kit_console/ume_kit_console.dart';
 export 'package:ume_kit_database/ume_kit_database.dart';
 export 'package:ume_kit_designer_check/ume_kit_designer_check.dart';
 export 'package:ume_kit_device/ume_kit_device.dart';
+export 'package:ume_kit_git/ume_kit_git.dart';
 export 'package:ume_kit_dio/ume_kit_dio.dart';
 export 'package:ume_kit_get_connect/ume_kit_get_connect.dart';
 export 'package:ume_kit_memory_detector/ume_kit_memory_detector.dart';
