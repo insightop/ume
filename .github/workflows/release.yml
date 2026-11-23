@@ -16,9 +16,14 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "要为其创建 Release 的 tag（需已存在）"
+        description: "要为其创建 Release 的 tag；dry_run 时可填任意 ref"
         required: true
         type: string
+      dry_run:
+        description: "只构建和打包，不创建 GitHub Release"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write   # 创建 Release 需要
@@ -113,6 +118,7 @@ jobs:
   release:
     name: Publish GitHub Release
     needs: build
+    if: ${{ !inputs.dry_run }}
     runs-on: ubuntu-latest
     steps:
       - name: Download all platform artifacts
