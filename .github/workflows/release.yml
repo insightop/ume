@@ -38,14 +38,12 @@ jobs:
         include:
           - platform: android
             os: ubuntu-latest
-            shell: bash
             script: |
               flutter build apk --release
               mkdir -p dist
               cp build/app/outputs/flutter-apk/app-release.apk dist/ume-example-android.apk
           - platform: ios
             os: macos-latest
-            shell: bash
             script: |
               flutter build ios --release --no-codesign
               mkdir -p dist
@@ -53,7 +51,6 @@ jobs:
                 build/ios/iphoneos/Runner.app dist/ume-example-ios-unsigned.zip
           - platform: macos
             os: macos-latest
-            shell: bash
             script: |
               flutter build macos --release
               mkdir -p dist
@@ -61,7 +58,6 @@ jobs:
                 build/macos/Build/Products/Release/example.app dist/ume-example-macos.zip
           - platform: windows
             os: windows-latest
-            shell: pwsh
             script: |
               flutter build windows --release
               New-Item -ItemType Directory -Force dist | Out-Null
@@ -69,7 +65,6 @@ jobs:
                 -DestinationPath dist/ume-example-windows.zip
           - platform: linux
             os: ubuntu-latest
-            shell: bash
             script: |
               flutter build linux --release
               mkdir -p dist
@@ -102,9 +97,16 @@ jobs:
       - name: Resolve workspace
         run: flutter pub get
 
-      - name: Build and package
+      - name: Build and package (bash)
+        if: matrix.platform != 'windows'
         working-directory: example
-        shell: ${{ matrix.shell }}
+        shell: bash
+        run: ${{ matrix.script }}
+
+      - name: Build and package (pwsh)
+        if: matrix.platform == 'windows'
+        working-directory: example
+        shell: pwsh
         run: ${{ matrix.script }}
 
       - name: Upload ${{ matrix.platform }} artifact
@@ -118,7 +120,7 @@ jobs:
   release:
     name: Publish GitHub Release
     needs: build
-    if: ${{ !inputs.dry_run }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.dry_run != true }}
     runs-on: ubuntu-latest
     steps:
       - name: Download all platform artifacts
