@@ -1,6 +1,6 @@
 name: CI
 
-# 质量门禁：静态分析 + 逐包测试 + example 构建
+# 质量门禁：静态分析 + 逐包测试 + example 全平台构建
 # 单仓库 pub workspace：根目录一次 `pub get` 覆盖全部成员包。
 on:
   push:
@@ -94,14 +94,38 @@ jobs:
           flutter test --enable-vmservice
 
   # ------------------------------------------------------------ example 构建
+  # 全平台构建矩阵。example/ 下的平台目录由 Flutter 官方模板生成，这里只做构建验证。
+  # Web 暂不纳入：ume_core 依赖 vm_service_io（dart:io），memory_detector 依赖
+  # dart:ffi，当前代码无法编译到 web；接入前需要先做条件化导入/导出。
   build-example:
-    name: Build example (android)
-    runs-on: ubuntu-latest
+    name: Build example (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
     needs: analyze
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: android
+            os: ubuntu-latest
+            command: flutter build apk --debug
+          - platform: ios
+            os: macos-latest
+            command: flutter build ios --debug --no-codesign
+          - platform: macos
+            os: macos-latest
+            command: flutter build macos --debug
+          - platform: windows
+            os: windows-latest
+            command: flutter build windows --debug
+          - platform: linux
+            os: ubuntu-latest
+            command: flutter build linux --debug
     steps:
       - uses: actions/checkout@v4
 
+      # Android 构建需要 JDK 17；其他平台不依赖 Java。
       - uses: actions/setup-java@v4
+        if: matrix.platform == 'android'
         with:
           distribution: temurin
           java-version: "17"
@@ -111,26 +135,35 @@ jobs:
           channel: ${{ env.FLUTTER_CHANNEL }}
           cache: true
 
+      # Linux 桌面构建需要 GTK/CMake/Ninja 工具链。
+      - name: Install Linux build dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
       - name: Resolve workspace
         run: flutter pub get
 
-      - name: Build debug APK
+      - name: Build
         working-directory: example
-        run: flutter build apk --debug
+        run: ${{ matrix.command }}
 
-      # 重命名构建产物，artifact 用语义化文件名
+      # 重命名 APK，artifact 用语义化文件名。
       - name: Rename APK
+        if: matrix.platform == 'android'
         run: |
           set -euo pipefail
           SRC="example/build/app/outputs/flutter-apk/app-debug.apk"
-          DEST="example/build/app/outputs/flutter-apk/wetlan-example-android-debug.apk"
+          DEST="example/build/app/outputs/flutter-apk/ume-example-android-debug.apk"
           mv "$SRC" "$DEST"
           ls -lh "$DEST"
 
       - name: Upload APK artifact
+        if: matrix.platform == 'android'
         uses: actions/upload-artifact@v4
         with:
-          name: wetlan-example-android-debug
-          path: example/build/app/outputs/flutter-apk/wetlan-example-android-debug.apk
-          if-no-files-found: warn
+          name: ume-example-android-debug
+          path: example/build/app/outputs/flutter-apk/ume-example-android-debug.apk
+          if-no-files-found: error
           retention-days: 7

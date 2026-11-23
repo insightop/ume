@@ -1,11 +1,14 @@
-name: Release (example APK + GitHub Release)
+name: Release (all platforms + GitHub Release)
 
 # 推送 v{{version}} tag 时：
-#   1) 构建 example 的 release APK（Android）
-#   2) 创建对应的 GitHub Release 并附加 APK
+#   1) 构建 example 的 Android / iOS / macOS / Windows / Linux 产物
+#   2) 创建对应的 GitHub Release 并附加全部产物
 #
 # 与 publish.yml 配套：同一个 v{{version}} tag 既发布 ume 到 pub.dev，
 # 也产出 GitHub Release。两者相互独立，互不阻塞。
+#
+# Web 暂不纳入：ume_core 依赖 vm_service_io（dart:io），memory_detector 依赖
+# dart:ffi，当前代码无法编译到 web；接入前需要先做条件化导入/导出。
 on:
   push:
     tags:
@@ -21,15 +24,60 @@ permissions:
   contents: write   # 创建 Release 需要
 
 jobs:
-  release:
-    name: Build example and release
-    runs-on: ubuntu-latest
+  build:
+    name: Build ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: android
+            os: ubuntu-latest
+            shell: bash
+            script: |
+              flutter build apk --release
+              mkdir -p dist
+              cp build/app/outputs/flutter-apk/app-release.apk dist/ume-example-android.apk
+          - platform: ios
+            os: macos-latest
+            shell: bash
+            script: |
+              flutter build ios --release --no-codesign
+              mkdir -p dist
+              ditto -c -k --sequesterRsrc --keepParent \
+                build/ios/iphoneos/Runner.app dist/ume-example-ios-unsigned.zip
+          - platform: macos
+            os: macos-latest
+            shell: bash
+            script: |
+              flutter build macos --release
+              mkdir -p dist
+              ditto -c -k --sequesterRsrc --keepParent \
+                build/macos/Build/Products/Release/example.app dist/ume-example-macos.zip
+          - platform: windows
+            os: windows-latest
+            shell: pwsh
+            script: |
+              flutter build windows --release
+              New-Item -ItemType Directory -Force dist | Out-Null
+              Compress-Archive -Path build/windows/x64/runner/Release/* `
+                -DestinationPath dist/ume-example-windows.zip
+          - platform: linux
+            os: ubuntu-latest
+            shell: bash
+            script: |
+              flutter build linux --release
+              mkdir -p dist
+              tar -czf dist/ume-example-linux.tar.gz \
+                -C build/linux/x64/release/bundle .
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
+      # Android 构建需要 JDK 17；其他平台不依赖 Java。
       - uses: actions/setup-java@v4
+        if: matrix.platform == 'android'
         with:
           distribution: temurin
           java-version: "17"
@@ -39,21 +87,43 @@ jobs:
           channel: stable
           cache: true
 
+      # Linux 桌面构建需要 GTK/CMake/Ninja 工具链。
+      - name: Install Linux build dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
       - name: Resolve workspace
         run: flutter pub get
 
-      - name: Build release APK
+      - name: Build and package
         working-directory: example
-        run: flutter build apk --release
+        shell: ${{ matrix.shell }}
+        run: ${{ matrix.script }}
 
-      # 重命名构建产物，Release 附件用语义化文件名
-      - name: Rename APK
-        run: |
-          set -euo pipefail
-          SRC="example/build/app/outputs/flutter-apk/app-release.apk"
-          DEST="example/build/app/outputs/flutter-apk/wetlan-example-android.apk"
-          mv "$SRC" "$DEST"
-          ls -lh "$DEST"
+      - name: Upload ${{ matrix.platform }} artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ume-example-${{ matrix.platform }}
+          path: example/dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ume-example-*
+          path: dist
+          merge-multiple: true
+
+      - name: List release assets
+        run: ls -lh dist
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -61,5 +131,5 @@ jobs:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           generate_release_notes: true
-          files: example/build/app/outputs/flutter-apk/wetlan-example-android.apk
+          files: dist/*
           fail_on_unmatched_files: true

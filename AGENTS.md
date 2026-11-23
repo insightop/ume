@@ -107,12 +107,16 @@ GitHub 的 ref glob 会拒绝 `[a-z0-9_]` 这类写法（下划线触发
 
 | 文件 | 触发 | 作用 |
 |---|---|---|
-| `ci.yml` | push/PR master | 布局守卫 → analyze → 逐包 test → example APK |
+| `ci.yml` | push/PR master | 布局守卫 → analyze → 逐包 test → example 全平台 debug 构建 |
 | `publish.yml` | tag `v*` / `<包名>-v*` | 守卫 → `pub publish` → 归档验证 |
-| `release.yml` | tag `v*` | example release APK + GitHub Release |
+| `release.yml` | tag `v*` | example 全平台 release 产物 + GitHub Release |
 | `coverage.yml` | push master（源码路径变更） | 重算 kit 覆盖率徽章并提交 |
 | `flutter_drive.yml` | push/PR master（example/packages 变更） | 集成测试（Android + KVM） |
 | `jekyll-gh-pages.yml` | push master | 部署 README 到 GitHub Pages |
+
+构建矩阵覆盖 Android / iOS / macOS / Windows / Linux。Web 不在矩阵内：
+`ume_core` 依赖 `vm_service_io`（`dart:io`），`ume_kit_memory_detector` 依赖
+`dart:ffi`，要支持 Web 需先把这些依赖条件化，属独立改造。
 
 ## 文档索引
 
