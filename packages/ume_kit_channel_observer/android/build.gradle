@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        // 对齐 Flutter 3.47 插件模板（旧值 4.1.0 已远低于要求）
-        classpath 'com.android.tools.build:gradle:9.1.0'
+        // 对齐 Flutter 3.50 插件模板（旧值 4.1.0 已远低于要求）
+        classpath 'com.android.tools.build:gradle:9.5.2'
     }
 }
 
@@ -25,7 +25,7 @@ apply plugin: 'com.android.library'
 android {
     namespace 'com.lijiaqi.ume_kit_channel_observer'
 
-    // Flutter 3.47 默认 compileSdk 为 36；依赖（androidx.* 1.7+/1.13+）要求 >= 34
+    // Flutter 3.50 默认 compileSdk 为 36；依赖（androidx.* 1.7+/1.13+）要求 >= 34
     compileSdk 36
 
     compileOptions {
@@ -34,7 +34,7 @@ android {
     }
 
     defaultConfig {
-        // 与 Flutter 3.47 默认 minSdk 对齐
+        // 与 Flutter 3.50 默认 minSdk 对齐
         minSdk 24
     }
 }
