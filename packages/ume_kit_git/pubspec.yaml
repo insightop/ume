@@ -1,0 +1,19 @@
+name: ume_kit_git
+description: Host app Git build revision panel and build-time tooling for UME.
+version: 1.0.0
+homepage: https://github.com/insightop/ume/tree/master/packages/ume_kit_git
+
+environment:
+  sdk: ">=3.9.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  ume_core: ^2.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

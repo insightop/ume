@@ -20,6 +20,9 @@ tool/                     仓库级脚本
 依赖方向是单向的：**kit → ume_core**，**ume(facade) → 它收录的各 kit + ume_core**。
 新实现放进实现它的 kit 或 ume_core；`packages/ume/lib/ume.dart` 保持为纯 `export`。
 
+Git 构建信息独立位于 `ume_kit_git`（面板、CLI 与采集）。
+`ume/bin/` 仅保留转发入口；facade 的 lib/ume.dart 仍为纯 export。
+
 两个 kit 有意未收入 facade：`ume_kit_bloc_inspector`（尚未发布到 pub.dev）与
 `ume_kit_storage`（`lib/ume.dart` 里的 export 被注释掉）。要收录它们，需同时
 加回 `packages/ume/pubspec.yaml` 的依赖与 facade 的 export：只加 export 会让

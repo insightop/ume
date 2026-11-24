@@ -2,6 +2,13 @@
 
 [English](./CHANGELOG.md)
 
+## 未发布
+
+- 导出独立 `ume_kit_git`，增加 `ume:flutter` / `ume:git_info` 命令入口。
+- 展示当前构建详情和默认折叠的最近 5 条本地提交。
+- Git 采集失败继续执行，补齐 IDE 启动前任务和内置图标说明。
+- 更新仓库 / 包文档、SDK 说明及 Git CI 覆盖。
+
 ## [2.0.9]
 
 - **修复**：2.0.8 的归档 pubspec 里带有 `workspace:` 字段，但它指向的 `example/`

@@ -77,3 +77,19 @@ The following is a standard Commit message example:
 
 [https://flutter.dev/dash](https://flutter.dev/dash)
 ```
+
+
+## Current workspace workflow
+
+The following supplements the original contribution instructions above for this
+checkout's pub workspace:
+
+1. Create a focused branch based on current `master`.
+2. Implement changes in the owning kit/core; keep the facade library export-only.
+3. Update tests and matching English/Chinese documentation; record unreleased changes separately.
+4. From the repository root, run `flutter pub get`, `dart tool/check_workspace_layout.dart` and relevant analysis/tests.
+5. For Git changes, run `flutter test packages/ume_kit_git/test` and `dart run ume:flutter test packages/ume_kit_git/test/git_info_test.dart`.
+6. Add newly tested kits to the CI matrix. Publish a new kit before releasing a facade dependency on it.
+7. Open a PR describing behavior and validation.
+
+See the [repository additions](../../README.md#current-source-additions) and [release rules](../../AGENTS.md).

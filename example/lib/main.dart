@@ -70,6 +70,9 @@ class _UMEAppState extends State<UMEApp> {
         // ..register(NetworkInfoPage())
         ..register(DeviceInfo())
 
+        // Git Info: run via `dart run ume:flutter run` to inject build metadata.
+        ..register(const GitInfo())
+
         // Dio
         ..register(DioInspector(dio: dio))
 
