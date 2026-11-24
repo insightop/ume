@@ -103,20 +103,34 @@ GitHub 的 ref glob 会拒绝 `[a-z0-9_]` 这类写法（下划线触发
 `resolution: workspace` 而没有 workspace 根，直接在解包目录里跑 `dart pub deps`
 必然误报。
 
+**新增 kit 先发布，再发布依赖它的包。** facade 新增 `ume_kit_*` 依赖时，workspace
+内可以解析并不代表 pub.dev 可解析：必须先把 kit 的新版本发布出去，确认
+`https://pub.dev/api/packages/<kit>` 的 `latest.version` 已更新，再 bump / publish
+facade。否则 facade 归档会依赖一个不存在的版本。
+
+**可发布 kit 的 Android AGP 不要跟随 example 取最新。** `example/android` 可以使用
+更新的 AGP / Gradle；但归档里的 `packages/*/android/build.gradle` 必须对齐目标
+Flutter 版本的插件模板（Flutter 3.50 为 AGP 9.3.1 / Gradle 9.5.0），否则会把
+消费者的 Gradle 下限抬高，导致默认模板工程构建失败。
+
 ### workflow 一览
 
 | 文件 | 触发 | 作用 |
 |---|---|---|
 | `ci.yml` | push/PR master | 布局守卫 → analyze → 逐包 test → example 全平台 debug 构建 |
 | `publish.yml` | tag `v*` / `<包名>-v*` | 守卫 → `pub publish` → 归档验证 |
-| `release.yml` | tag `v*` | example 全平台 release 产物 + GitHub Release |
+| `release.yml` | tag `v*` / workflow_dispatch（`dry_run`） | example 全平台 release 产物 + GitHub Release |
 | `coverage.yml` | push master（源码路径变更） | 重算 kit 覆盖率徽章并提交 |
 | `flutter_drive.yml` | push/PR master（example/packages 变更） | 集成测试（Android + KVM） |
 | `jekyll-gh-pages.yml` | push master | 部署 README 到 GitHub Pages |
 
 构建矩阵覆盖 Android / iOS / macOS / Windows / Linux。Web 不在矩阵内：
-`ume_core` 依赖 `vm_service_io`（`dart:io`），`ume_kit_memory_detector` 依赖
-`dart:ffi`，要支持 Web 需先把这些依赖条件化，属独立改造。
+`ume_core` 依赖 `vm_service` 并 import `vm_service/vm_service_io.dart`（`dart:io`），
+`ume_kit_memory_detector` 依赖 `dart:ffi`，要支持 Web 需先把这些依赖条件化，属独立改造。
+
+`release.yml` 的 iOS 产物使用 `--no-codesign`，macOS 产物为 ad-hoc 签名，仅用于
+构建/分发验证；真机安装需要自行签名。`workflow_dispatch` 传 `dry_run=true` 时
+只构建和打包，不创建 Release。
 
 ## 文档索引
 
