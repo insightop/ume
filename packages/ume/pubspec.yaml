@@ -1,6 +1,6 @@
 name: ume
 description: Community Version of UME is an in-app debug kits platform for Flutter apps.
-version: 2.0.9
+version: 2.1.0
 homepage: https://github.com/insightop/ume
 topics: [debug, in-app-debug, diagnostics, plugin, ume]
 screenshots:
