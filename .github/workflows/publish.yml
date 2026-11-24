@@ -42,7 +42,7 @@ jobs:
       package_dir: ${{ steps.resolve.outputs.package_dir }}
       version: ${{ steps.resolve.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Resolve package directory and version
         id: resolve
@@ -97,7 +97,7 @@ jobs:
     permissions:
       id-token: write   # OIDC 认证所需（由 setup-dart 步骤换取临时 token）
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # 1) 注入 pub.dev 的 OIDC 凭据（必须最先执行）
       - uses: dart-lang/setup-dart@v1

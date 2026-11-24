@@ -75,7 +75,7 @@ jobs:
               tar -czf dist/ume-example-linux.tar.gz \
                 -C build/linux/x64/release/bundle .
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
@@ -114,7 +114,7 @@ jobs:
         run: ${{ matrix.script }}
 
       - name: Upload ${{ matrix.platform }} artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ume-example-${{ matrix.platform }}
           path: example/dist/*
@@ -130,7 +130,7 @@ jobs:
       contents: write   # 只有这个 job 需要创建 Release
     steps:
       - name: Download all platform artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: ume-example-*
           path: dist
@@ -140,7 +140,7 @@ jobs:
         run: ls -lh dist
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3.0.4
         with:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
