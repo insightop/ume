@@ -185,6 +185,21 @@ exit "${UME_TEST_EXIT_CODE:-0}"
     skip: Platform.isWindows,
   );
 
+  test(
+    'IDE generator help prints usage without writing a file',
+    () async {
+      final result = await run(['generate', '--help']);
+      expect(result.exitCode, 0, reason: result.stderr.toString());
+      expect(result.stdout, contains('Usage:'));
+      expect(File('${root.path}/--help').existsSync(), isFalse);
+      expect(
+        File('${root.path}/.dart_tool/ume_git_info.json').existsSync(),
+        isFalse,
+      );
+    },
+    skip: Platform.isWindows,
+  );
+
   test('injection precedes application argument separator', () async {
     initGit();
     final result = await run(['run', '--', 'argument with spaces', '--help']);

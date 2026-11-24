@@ -1,72 +1,11 @@
 # ume_kit_git
 
-独立的 UME Git 构建信息插件。只依赖 Flutter 和 `ume_core`，不依赖 `ume_kit_device`。
-
-## 通过 UME 使用
-
-```dart
-import 'package:ume/ume.dart';
-
-PluginManager.instance.register(const GitInfo());
-```
-
-在 App 仓库目录执行，其他 Flutter 参数照常传递：
-
-```sh
-dart run ume:flutter run
-dart run ume:flutter build apk --release
-```
-
-## 仅使用这个 kit
-
-不需要依赖 UME 的其他 kits：
-
-```dart
-import 'package:ume_core/ume_core.dart';
-import 'package:ume_kit_git/ume_kit_git.dart';
-
-PluginManager.instance.register(const GitInfo());
-```
-
-```sh
-dart run ume_kit_git:flutter run
-dart run ume_kit_git:flutter build apk --release
-```
-
-面板展示 App 构建时的完整 commit ID、分支、提交说明、作者、
-committer 时间（含时区）和工作区未提交状态，点击可复制。
-读取当前 App 的本地 HEAD，不访问远端，不保存未提交差异。
-构建参数通过临时文件注入，Flutter 退出后自动删除；保留参数、终端交互和退出码。
-`run`、`build`、`test` 注入 Git 信息，其他命令与帮助请求原样转发。
-采集失败只输出提示，继续启动或构建；面板不展示 Git 详情。
-运行命令的电脑需要 Git 和 Flutter；安装包运行时不需要 Git 或网络。
-
-## 原生 Flutter / IDE 调试
-
-在启动前运行采集命令，再让原生 Flutter 或 IDE 调试器读取参数文件：
-
-```sh
-dart run ume_kit_git:generate_git_info
-flutter run --dart-define-from-file=.dart_tool/ume_git_info.json
-```
-
-依赖完整 UME 时也可用 `dart run ume:git_info`。生成命令支持额外传入输出文件路径，
-采集失败时写入空 JSON，覆盖旧信息并返回成功，不阻断 IDE 启动。VS Code 使用 preLaunchTask 执行采集，并在 toolArgs 中指定文件，
-完整示例见 `ume/README_cn.md`。
-
----
+[简体中文](./README_cn.md)
 
 Standalone UME Git revision panel and build-time CLI. Depends only on Flutter
 and ume_core. Register `const GitInfo()` and use `dart run ume_kit_git:flutter`
 in place of `flutter`, or use the equivalent `ume:flutter` facade command.
 The installed app displays embedded build metadata without Git or network access.
-
-
-最近提交列表默认收集当前构建 commit 及其之前的最近 5 条记录（历史不足 5 条时按实际数量）。
-Git Info 顶部保留当前构建详情，下方“最近提交”默认折叠，展开后可查看短 commit ID、
-提交说明、提交人和时间，点击记录可复制含完整 ID 的信息。
-沿用现有采集命令，无需修改业务启动配置；记录来自本地 Git 历史，不代表相邻测试包的完整差异。
-
 
 ## Expanded integration guide (current source)
 
@@ -85,9 +24,11 @@ that the same pub.dev archive already includes these additions.
 | Recent commits | Up to five entries, collapsed initially; short hash, subject, author and timestamp |
 | Copy | Tap a current-build field to copy it; tap a history entry or its copy button for the full hash and details |
 
-History includes the captured build revision, in `git log -5` order. Fewer local
-commits produce fewer entries. The limit is currently fixed at five, with no
-count option. The author is Git author name; timestamps use committer time.
+History lists up to five commits **before** the captured build revision
+(`git log -5 --skip=1 <build-commit>`); the build revision itself is shown under
+Current build. Fewer local commits produce fewer entries. The limit is currently
+fixed at five, with no count option. The author is Git author name; timestamps
+use committer time.
 The tool reads the **host app checkout's local HEAD**, not the UME repository or
 the remote tip. Dirty state is a flag, not an embedded diff. History does not
 represent all changes since the previous test build.
@@ -279,7 +220,8 @@ From the repository root:
 
 ```sh
 flutter pub get
-dart analyze packages/ume_kit_git packages/ume/bin
+dart analyze packages/ume_kit_git
+dart analyze packages/ume/bin
 flutter test packages/ume_kit_git/test
 # Also validate interaction with actual injected build/history data:
 dart run ume:flutter test packages/ume_kit_git/test/git_info_test.dart
@@ -288,6 +230,12 @@ dart run ume:flutter test packages/ume_kit_git/test/git_info_test.dart
 Coverage includes history order and limits, Unicode, fail-open capture, stale
 file replacement, argument/exit-code forwarding, temporary files, collapsible
 history, copying and image decoding.
+
+### Platform support
+
+The panel uses Flutter APIs only. Git capture and the CLI wrapper are tested on
+macOS/Linux; on Windows the wrapper uses `runInShell`/`.bat`, and its CLI tests
+are currently skipped, so treat Windows as preview until CI covers it.
 
 
 ## Capture reliability and SDK selection
@@ -299,8 +247,3 @@ history, copying and image decoding.
 - SDK selection: `UME_FLUTTER_EXECUTABLE` (explicit executable path), then Flutter alongside the running Dart SDK, then `flutter` on PATH. Set the override when your SDK manager requires a different executable.
 - Dart API callers must now `await captureGitInfo()` and `await generateGitInfo(args)`. `captureGitInfo(timeout: Duration(seconds: 5))` accepts a custom total budget. CLI commands are unchanged.
 - Recent commit rows show time first, subject second, and short hash plus author third. Copying retains the full hash.
-
-
-## Previous commit history (updated behavior)
-
-The history section is now labeled “此前提交” (previous commits). It excludes the captured build commit and lists up to five earlier entries using `git log -5 --skip=1 <build-commit>`. This supersedes the inclusive history behavior described above. Short histories show only available entries; a repository with only one commit has no history section. Current build details remain separate and unchanged.

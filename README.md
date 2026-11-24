@@ -408,7 +408,7 @@ as a before-launch task, passing `--dart-define-from-file=.dart_tool/ume_git_inf
 to Flutter. Both entry points share the same collector in `ume_kit_git`.
 
 The panel displays the current build revision and a collapsed list of up to five
-recent commits. Capture failure continues without Git details. Icons are embedded,
+earlier commits. Capture failure continues without Git details. Icons are embedded,
 so the Git kit needs no app asset declaration. Git commands are build-time only.
 The [Git guide](./packages/ume_kit_git/README.md) includes complete setup and failure behavior.
 

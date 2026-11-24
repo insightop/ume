@@ -19,7 +19,8 @@ Future<int> runFlutter(List<String> args) async {
         !toolArgs.contains('-h');
     if (needsGit) {
       try {
-        // Capture first so the generated file never affects the dirty flag.
+        // Capture before Flutter starts; the definition file lives in system
+        // temp, outside the checkout, so it cannot affect the dirty flag.
         final info = await captureGitInfo();
         temporary = Directory.systemTemp.createTempSync('ume_git_');
         final file = File('${temporary.path}/git_info.json');

@@ -102,6 +102,10 @@ Future<Map<String, String>> captureGitInfo({
 
 /// Refresh the IDE file atomically so readers never see partially written JSON.
 Future<int> generateGitInfo(List<String> args) async {
+  if (args.length == 1 && (args.single == '--help' || args.single == '-h')) {
+    stdout.writeln('Usage: dart run ume:git_info [output.json]');
+    return 0;
+  }
   if (args.length > 1) {
     stderr.writeln('Usage: dart run ume:git_info [output.json]');
     return 64;

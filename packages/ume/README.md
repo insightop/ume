@@ -405,11 +405,12 @@ copyable panel supplied by the independent `ume_kit_git` package. Without inject
 For IDE breakpoint debugging, run `dart run ume:git_info` as a pre-launch task
 and add `--dart-define-from-file=.dart_tool/ume_git_info.json` to the launch
 configuration's `toolArgs`. The generator refreshes the file before each launch
-and replaces stale data with empty JSON and returns success if capture fails. See README_cn.md for a full VS Code task
+and replaces stale data with empty JSON and returns success if capture fails. See the
+[Git guide](../ume_kit_git/README.md#vs-code--cursor) for a full VS Code task
 example. The generator also accepts a custom output path.
 
 
-Git Info also embeds the latest five commits ending at the build revision (or fewer
+Git Info also embeds up to five commits before the build revision (or fewer
 when history is limited). The current build details remain at the top, followed
 by a collapsed history list with short hash, subject, author and timestamp. Tap a
 record to copy its full hash and details. Existing CLI and IDE commands work

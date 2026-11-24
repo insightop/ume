@@ -17,7 +17,7 @@ UME 的独立 Git 构建信息插件。面板、Git 采集和命令行工具均�
 | 复制 | 点击当前构建字段可复制该字段；点击提交记录或复制按钮可复制完整 ID 和提交详情 |
 
 时间采用 Git committer time，保留时区；“作者”来自 Git author name。
-最近提交包含当前构建 commit，按 `git log -5` 顺序排列，不足 5 条时显示实际数量。
+最近提交不含当前构建 commit，按 `git log -5 --skip=1` 顺序排列，最多展示当前 build revision 之前的 5 条；当前 commit 在顶部单独展示。历史不足 5 条时显示实际数量。
 当前实现固定最多 5 条，没有配置条数的命令行参数。
 
 信息来自执行命令的 **App 仓库本地 HEAD**，不是 UME 仓库，也不是远端最新提交。
@@ -230,7 +230,8 @@ Git 插件图标使用内置 Base64 字节和 `MemoryImage`，与 UME 多数插�
 
 ```sh
 flutter pub get
-dart analyze packages/ume_kit_git packages/ume/bin
+dart analyze packages/ume_kit_git
+dart analyze packages/ume/bin
 flutter test packages/ume_kit_git/test
 ```
 
@@ -243,6 +244,9 @@ dart run ume:flutter test packages/ume_kit_git/test/git_info_test.dart
 测试覆盖 Git 历史顺序与数量、中文信息、采集失败继续执行、旧文件清理、
 参数和退出码转发、临时文件生命周期、折叠与复制、图标解码。
 
+平台说明：面板只使用 Flutter API；Git 采集和 CLI wrapper 在 macOS/Linux 上验证，
+Windows 走 `runInShell` / `.bat`，其 CLI 测试目前被跳过，暂时按预览功能对待。
+
 
 ## 采集可靠性与 SDK 选择补充
 
@@ -253,8 +257,3 @@ dart run ume:flutter test packages/ume_kit_git/test/git_info_test.dart
 - Flutter SDK 选择顺序：环境变量 `UME_FLUTTER_EXECUTABLE` 指定的可执行文件路径 → 当前 Dart SDK 所属 Flutter → PATH 中的 `flutter`。需要指定其他 SDK 时可设置该环境变量。
 - 直接调用 Dart API 时，现在需要 `await captureGitInfo()`、`await generateGitInfo(args)`；`captureGitInfo(timeout: Duration(seconds: 5))` 可自定义总预算。原有 CLI 命令不变。
 - 最近提交按时间、提交说明、短 commit 号和提交人三行展示；复制内容仍包含完整 commit 号。
-
-
-## 此前提交（最新行为说明）
-
-历史区域文案改为“此前提交”，提示“不含当前构建，最多 5 条”。采集使用 `git log -5 --skip=1 <构建commit>`，排除当前构建 commit，展示它之前最多 5 条提交；此说明替代前文包含当前构建 commit 的旧规则。历史不足时显示实际数量，只有一个 commit 时不展示历史区域。顶部当前构建详情保持不变。

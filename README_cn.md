@@ -406,7 +406,7 @@ IDE 断点调试继续使用原生 Flutter 启动配置：启动前执行 `dart 
 Flutter 追加 `--dart-define-from-file=.dart_tool/ume_git_info.json`。
 两种入口共用 `ume_kit_git` 内的采集逻辑。
 
-面板展示当前构建详情和默认折叠的最近最多 5 条提交。采集失败继续启动或构建，
+面板展示当前构建详情和默认折叠的当前 commit 之前最多 5 条提交。采集失败继续启动或构建，
 不显示 Git 详情。图标为内置图片数据，业务方无需声明 asset。Git 仅在构建前运行。
 完整配置和失败处理见 [Git 指南](./packages/ume_kit_git/README_cn.md)。
 
