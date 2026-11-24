@@ -7,6 +7,10 @@ name: Release (all platforms + GitHub Release)
 # 与 publish.yml 配套：同一个 v{{version}} tag 既发布 ume 到 pub.dev，
 # 也产出 GitHub Release。两者相互独立，互不阻塞。
 #
+# iOS 产物使用 --no-codesign，macOS 产物为 ad-hoc 签名，仅用于构建/分发验证；
+# 真机安装需要自行签名。workflow_dispatch 传 dry_run=true 时只构建和打包，
+# 不创建 Release。
+#
 # Web 暂不纳入：ume_core 依赖 vm_service_io（dart:io），memory_detector 依赖
 # dart:ffi，当前代码无法编译到 web；接入前需要先做条件化导入/导出。
 on:
@@ -26,7 +30,7 @@ on:
         default: false
 
 permissions:
-  contents: write   # 创建 Release 需要
+  contents: read   # 构建 job 只需要读仓库；写权限只给 release job
 
 jobs:
   build:
@@ -122,6 +126,8 @@ jobs:
     needs: build
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.dry_run != true }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # 只有这个 job 需要创建 Release
     steps:
       - name: Download all platform artifacts
         uses: actions/download-artifact@v4
