@@ -8,8 +8,9 @@ buildscript {
     }
 
     dependencies {
-        // 对齐 Flutter 3.50 插件模板（旧值 4.1.0 已远低于要求）
-        classpath 'com.android.tools.build:gradle:9.5.2'
+        // 对齐 Flutter 3.50 插件模板；发布包不要跟随 example 取最新 AGP，
+        // 否则会把消费者的 Gradle 下限抬到 9.6+。
+        classpath 'com.android.tools.build:gradle:9.3.1'
     }
 }
 
