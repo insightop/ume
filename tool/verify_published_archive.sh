@@ -66,7 +66,22 @@ dependencies:
   ${PKG}: ${VERSION}
 EOF
 
-if ! "$DART" pub get >get.log 2>&1; then
+# pub.dev 可能已经能下载归档，但版本求解索引还没更新（上传提示最多 10 分钟）。
+# 这里对消费者解析做重试；真实依赖错误仍会在重试耗尽后失败。
+get_ok=0
+for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+  if "$DART" pub get >get.log 2>&1; then
+    get_ok=1
+    break
+  fi
+  if [ "$attempt" = 12 ]; then
+    break
+  fi
+  echo "  等待 pub.dev 索引 ${PKG} ${VERSION}（第 ${attempt} 次重试）..."
+  sleep 15
+done
+
+if [ "$get_ok" != 1 ]; then
   echo "::error::${PKG} ${VERSION} 无法被下游解析（dart pub get 失败）："
   cat get.log
   exit 1
